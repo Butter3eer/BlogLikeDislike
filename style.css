@@ -1,0 +1,21 @@
+label {
+    font-weight: bold;
+}
+
+.card {
+    margin: 15px;
+    padding: 0px;
+}
+
+h1 {
+    padding-top: 50px;
+    text-align: center;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+i {
+    color: darksalmon;
+}

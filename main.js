@@ -1,18 +1,18 @@
 const base_url = "https://retoolapi.dev/O3mfHh/data";
+var id = 0;
+var rate = 0;
 
 $(function () {
     KiirViccek();
 
-    $("#viccForm").submit(function (e) {
+    $("#jokeForm").submit(function (e) {
         e.preventDefault();
-        const id = $("#viccID").val();
-        const rate = $("#viccRate").val();
-        const viccSzoveg = $("#viccInput").val();
+        const viccSzoveg = $("#jokeInput").val();
 
         const viccek = {
             id: id,
-            rate: rate,
-            viccSzoveg: viccSzoveg
+            viccSzoveg: viccSzoveg,
+            rate: rate
         }
 
         $.post(base_url, viccek,
@@ -24,6 +24,7 @@ $(function () {
             },
             "json"
         );
+        id += 1;
     });
 });
 
@@ -31,36 +32,35 @@ function KiirViccek() {
     $.get(base_url,
         function (data) {
             let html = "";
-            data.forEach(viccek => {
-                if (viccek.rate === 0 || viccek.rate === "") {
-                    viccek.rate = 0;
-                }
+            console.log(data);
+            data.forEach(jokes => {
                 html += `
                 <div class="card w-25">
                     <div class="card-header d-flex justify-content-between align-items-right">
-                        <p>${viccek.id}</p>
-                        <i onclick="viccTorles(${viccek.id})" class="fa-solid fa-delete-left"></i>
+                        <p id="jokeId">${jokes.id}</p>
+                        <i onclick="viccTorles(${jokes.id})" class="fa-solid fa-delete-left"></i>
+                        <i onclick="readJokes(${jokes.id})" class="fa-solid fa-arrows-rotate"></i>
                     </div>
                     <div class="card-body">
-                        <p>${viccek.viccSzoveg}</p>
+                        <p id="jokeText">${jokes.viccSzoveg}</p>
                     </div>
                     <div class="card-footer">
-                        <p id="rateKiirt">${viccek.rate}</p>
-                        <i onclick="LikeClick(${viccek.id})" class="fa-solid fa-heart"></i>
+                        <p id="jokeRate">${jokes.rate}</p>
+                        <i onclick="LikeClick('${jokes.id}', '${jokes.viccSzoveg}', ${jokes.rate})" class="fa-solid fa-heart"></i>
                     </div>
                 </div>
-                `
+                `;
             })
-            $("#viccek").html(html);
+            $("#jokePlace").html(html);
         },
         "json"
     );
 }
 
-function viccTorles(id) {
+function viccTorles(szoveg) {
     $.ajax({
         type: "DELETE",
-        url: `${base_url}/${id}`,
+        url: `${base_url}/${szoveg}`,
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             if (textStatus === "success") {
@@ -70,17 +70,11 @@ function viccTorles(id) {
     });
 }
 
-function LikeClick(viccId) {
-    readVicc(viccId);
-
-    const id = $("#viccID").value();
-    const rate = parseInt($("#viccRate").val()) + 1;
-    const viccSzoveg = $("#szovegInput").val();
-
+function LikeClick(viccId, viccSzoveg, rate) {
     const viccek = {
-        id: id,
-        rate: rate,
-        viccSzoveg: viccSzoveg
+        id: viccId,
+        viccSzoveg: viccSzoveg,
+        rate: rate + 1
     };
 
     $.ajax({
@@ -90,20 +84,18 @@ function LikeClick(viccId) {
         dataType: "json",
         data: JSON.stringify(viccek),
         success: function (vicc) {
-            $("#rateKiirt").html(vicc.rate);
             KiirViccek();
         }
     });
 }
 
-function readVicc(viccId) {
-    $.get(`${base_url}/${viccId}`,
-        function (vicc, textStatus) {
-            if (textStatus === "success") {
-                $("#viccID").val(vicc.id);
-                $("#viccRate").val(vicc.rate);
-                $("#szovegInput").val(vicc.viccSzoveg);
-            }
+function readJokes(jokesId) {
+    $.get(`${base_url}/${jokesId}`,
+        function (data, textStatus) {
+            console.log(textStatus);
+            $("#jokeIdInput").val(data.id);
+            $("#jokeTextInput").val(data.viccSzoveg);
+            $("#jokeRateInput").val(data.rate);
         },
         "json"
     );
